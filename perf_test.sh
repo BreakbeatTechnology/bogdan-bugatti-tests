@@ -32,8 +32,8 @@ elif [ "$voltype" == "eph" ]; then
     sudo mkfs.ext4 /dev/nvme1n1p1
     sudo mkdir /mnt/nvme1n1p1
     sudo mount /dev/nvme1n1p1 /mnt/nvme1n1p1
-    ioping -c 30 /mnt/nvme1n1p1/ | tee /home/ubuntu/tests/ioping_ephemeral
-    sudo fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=/mnt/nvme1n1p1/random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=75 --output=fio_randrw1G_ephemeral
+    ioping -c 30 /mnt/nvme1n1p1/ | tee /root/tests/ioping_ephemeral
+    sudo fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=/mnt/nvme1n1p1/random_read_write.fio --bs=4k --iodepth=64 --size=1G --readwrite=randrw --rwmixread=75 --output=/root/tests/fio_randrw1G_ephemeral
 fi
 
 aws s3 sync /root/tests/ s3://$bucket/tests/$voltype/

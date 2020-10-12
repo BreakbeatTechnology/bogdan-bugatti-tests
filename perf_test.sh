@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Environment variables used in this script:
-# $voltype - Specifies the type of volume being used in this test
 # $bucket - Specifies which S3 bucket will receive the test results
 
 # Checking test's run time

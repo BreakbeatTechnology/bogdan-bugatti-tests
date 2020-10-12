@@ -6,6 +6,9 @@
 # Checking test's run time
 export scriptstart=$(date +%s)
 
+# Get Instance ID to use when describing EBS volumes and for target S3 path
+export instanceid=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+
 # Install fio & ioping
 apt update
 apt install awscli fio ioping nvme-cli -y
@@ -17,8 +20,8 @@ export dir=/root/tests/$(date +"%y-%m-%d")
 mkdir -p $dir/
 
 # Enumerate GP2 and IO2 volumes attached to this instance with tag type:perftest
-export gp2vols=$(aws ec2 describe-volumes --filters Name=volume-type,Values=gp2 Name=attachment.instance-id,Values=$(curl http://169.254.169.254/latest/meta-data/instance-id) Name=tag:type,Values=perftest --query "Volumes[*].{ID:VolumeId}" --region us-west-2 --output text)
-export io2vols=$(aws ec2 describe-volumes --filters Name=volume-type,Values=io2 Name=attachment.instance-id,Values=$(curl http://169.254.169.254/latest/meta-data/instance-id) Name=tag:type,Values=perftest --query "Volumes[*].{ID:VolumeId}" --region us-west-2 --output text)
+export gp2vols=$(aws ec2 describe-volumes --filters Name=volume-type,Values=gp2 Name=attachment.instance-id,Values=$instanceid Name=tag:type,Values=perftest --query "Volumes[*].{ID:VolumeId}" --region us-west-2 --output text)
+export io2vols=$(aws ec2 describe-volumes --filters Name=volume-type,Values=io2 Name=attachment.instance-id,Values=$instanceid Name=tag:type,Values=perftest --query "Volumes[*].{ID:VolumeId}" --region us-west-2 --output text)
 export ephvol=$(nvme list | grep NVMe | awk '{print $1}' | cut -c 6-)
 
 # Determine volume IDs for each volumes
@@ -107,9 +110,6 @@ export ephend=$(date +%s)
 
 # Note time taken for ephemeral storage volume prep & test in notes
 echo -e "Runtime for tests on eph: $(( $ephend - $ephstart )) "
-
-# Get Instance ID to use in s3 path for results
-export instanceid=$(curl http://169.254.169.254/latest/meta-data/instance-id)
 
 export scriptend=$(date +%s)
 
